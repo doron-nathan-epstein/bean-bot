@@ -20,8 +20,7 @@
   "homepage": "https://github.com/doron-nathan-epstein/bean-bot#readme",
   "dependencies": {
     "discord.js": "^12.2.0",
-    "dotenv": "^8.2.0",
-    "winston": "^3.2.1"
+    "dotenv": "^8.2.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.3"
