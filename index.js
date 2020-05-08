@@ -41,6 +41,10 @@ client.on("voiceStateUpdate", async (oldState, newState) => {
     return
   }
 
+  if(oldState.channelID === newState.channelID){
+    return
+  }
+
   if(oldState !== null) {
     let connection = client.voice.connections.get(oldState.guild.id)
     if(connection !== undefined) {
