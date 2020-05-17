@@ -1,31 +1,32 @@
-const announce = require("../utils/announce.js");
 const PREFIX = "!mb";
 
 module.exports = async (client, message) => {
-  if (message.author.bot) {
+  if (message.author.bot || !message.content.startsWith(PREFIX)) {
     return;
   }
 
-  if (!message.guild) {
+  let args = message.content.slice(PREFIX.length + 1).split(/ +/);
+  let commandName = args.shift().toLowerCase();
+  console.log(commandName);
+
+  let command =
+    client.commands.get(commandName) ||
+    client.commands.find(
+      (cmd) => cmd.aliases && cmd.aliases.includes(commandName)
+    );
+
+  if (!command) {
     return;
   }
 
-  if (message.content.indexOf(PREFIX) !== 0) {
-    return;
-  }
-
-  if (message.content === "!mb join") {
-    if (message.member.voice.channel) {
-      await message.member.voice.channel.join();
-    } else {
-      message.reply("You need to join a voice channel first!");
+  try {
+    if (command.guildOnly && message.channel.type !== "text") {
+      return message.reply("I can't execute that command inside DMs!");
     }
-  }
 
-  if (message.content === "!mb leave") {
-    let connection = client.voice.connections.get(message.guild.id);
-    if (connection !== undefined) {
-      announce(connection, "Mr Bean bids you farewell", true);
-    }
+    await command.execute(message, args);
+  } catch (error) {
+    console.error(error);
+    message.reply("There was an error trying to execute that command!");
   }
 };
