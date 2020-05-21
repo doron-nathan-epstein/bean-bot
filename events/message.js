@@ -7,7 +7,7 @@ module.exports = async (client, message) => {
 
   let args = message.content.slice(PREFIX.length + 1).split(/ +/);
   let commandName = args.shift().toLowerCase();
-  console.log(commandName);
+  console.log(`${message.author.tag} sent the following command: ${message}`);
 
   let command =
     client.commands.get(commandName) ||
@@ -19,11 +19,21 @@ module.exports = async (client, message) => {
     return;
   }
 
-  try {
-    if (command.guildOnly && message.channel.type !== "text") {
-      return message.reply("I can't execute that command inside DMs!");
+  if (command.guildOnly && message.channel.type !== "text") {
+    return message.reply("I can't execute that command inside DMs!");
+  }
+
+  if (command.args && !args.length) {
+    let reply = `You didn't provide any arguments, ${message.author}!`;
+
+    if (command.usage) {
+      reply += `\nThe proper usage would be: \`${prefix} ${command.name} ${command.usage}\``;
     }
 
+    return message.channel.send(reply);
+  }
+
+  try {
     await command.execute(message, args);
   } catch (error) {
     console.error(error);
