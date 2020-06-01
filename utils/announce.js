@@ -1,9 +1,9 @@
 module.exports = function (connection, tts, disconnect) {
-  let gtts =
+  const gtts =
     "https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en&q=" +
     encodeURI(tts);
 
-  let dispatcher = connection.play(gtts, {
+  const dispatcher = connection.play(gtts, {
     volume: 1,
   });
 

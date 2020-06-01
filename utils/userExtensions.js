@@ -1,4 +1,8 @@
-module.exports = function getUserFromMention(client, mention) {
+module.exports = function(){
+  getUserFromMention
+};
+
+const getUserFromMention = (client, mention) => {
   if (!mention) return;
 
   if (mention.startsWith("<@") && mention.endsWith(">")) {

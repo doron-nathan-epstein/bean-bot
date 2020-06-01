@@ -1,6 +1,6 @@
 const announce = require("../utils/announce.js");
 
-module.exports = async (client, oldState, newState) => {
+module.exports = async (client, db_context, oldState, newState) => {
   if (oldState.member.user.bot) {
     return;
   }
@@ -10,7 +10,7 @@ module.exports = async (client, oldState, newState) => {
   }
 
   if (oldState !== null) {
-    let connection = client.voice.connections.get(oldState.guild.id);
+    const connection = client.voice.connections.get(oldState.guild.id);
     if (connection !== undefined) {
       if (connection.voice.channelID === oldState.channelID) {
         announce(
@@ -23,7 +23,7 @@ module.exports = async (client, oldState, newState) => {
   }
 
   if (newState !== null) {
-    let connection = client.voice.connections.get(newState.guild.id);
+    const connection = client.voice.connections.get(newState.guild.id);
     if (connection !== undefined) {
       if (connection.voice.channelID === newState.channelID) {
         announce(

@@ -6,8 +6,8 @@ module.exports = {
   guildOnly: true,
   args: true,
   usage: "[@user]",
-  async execute(message, args) {
-    let user = getUserFromMention(message.client, args[0]);
+  async execute(message, db_context, args) {
+    const user = getUserFromMention(message.client, args[0]);
     if (!user) {
       return message.reply(
         "Please use a proper mention if you want to see send an UwU."

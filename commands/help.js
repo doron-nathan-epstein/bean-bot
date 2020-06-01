@@ -6,9 +6,9 @@ module.exports = {
   aliases: ["commands"],
   usage: "[command name]",
   cooldown: 5,
-  async execute(message, args) {
-    let data = [];
-    let { commands } = message.client;
+  async execute(message, db_context, args) {
+    const data = [];
+    const { commands } = message.client;
 
     if (!args.length) {
       data.push("Here's a list of all my commands:\n");
@@ -36,8 +36,8 @@ module.exports = {
         });
     }
 
-    let name = args[0].toLowerCase();
-    let command =
+    const name = args[0].toLowerCase();
+    const command =
       commands.get(name) ||
       commands.find((c) => c.aliases && c.aliases.includes(name));
 

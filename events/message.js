@@ -1,15 +1,15 @@
 const PREFIX = "!mb";
 
-module.exports = async (client, message) => {
+module.exports = async (client, db_context, message) => {
   if (message.author.bot || !message.content.startsWith(PREFIX)) {
     return;
   }
 
-  let args = message.content.slice(PREFIX.length + 1).split(/ +/);
-  let commandName = args.shift().toLowerCase();
+  const args = message.content.slice(PREFIX.length + 1).split(/ +/);
+  const commandName = args.shift().toLowerCase();
   console.log(`${message.author.tag} sent the following command: ${message}`);
 
-  let command =
+  const command =
     client.commands.get(commandName) ||
     client.commands.find(
       (cmd) => cmd.aliases && cmd.aliases.includes(commandName)
@@ -23,6 +23,10 @@ module.exports = async (client, message) => {
     return message.reply("I can't execute that command inside DMs!");
   }
 
+  if(command.adminOnly && !message.member.hasPermission("ADMINISTRATOR")) {
+    return message.reply("You do not have the right permissions to execute this command!");
+  }
+
   if (command.args && !args.length) {
     let reply = `You didn't provide any arguments, ${message.author}!`;
 
@@ -34,7 +38,7 @@ module.exports = async (client, message) => {
   }
 
   try {
-    await command.execute(message, args);
+    await command.execute(message, db_context, args);
   } catch (error) {
     console.error(error);
     message.reply("There was an error trying to execute that command!");

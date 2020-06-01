@@ -20,6 +20,7 @@
   "homepage": "https://github.com/doron-nathan-epstein/bean-bot#readme",
   "dependencies": {
     "@discordjs/opus": "^0.3.2",
+    "better-sqlite3": "^7.0.1",
     "discord.js": "^12.2.0",
     "dotenv": "^8.2.0",
     "ffmpeg-static": "^4.2.1",
