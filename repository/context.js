@@ -1,3 +1,4 @@
+const Promise = require("bluebird");
 const SQLite = require("better-sqlite3");
 const blizzard = require("./blizzard.js");
 const guildWow = require("./guildWow.js");
@@ -11,14 +12,13 @@ function context() {
     this.blizzard = new blizzard(this.sql);
     this.guildWow = new guildWow(this.sql);
     console.log("Database connection opened");
-    this.setupDatabase();
-    console.log("");
   };
 
-  this.setupDatabase = function () {
-    console.log("Ensuring database correctly setup:");
-    this.blizzard.setup();
-    this.guildWow.setup();
+  this.setupDatabase = function (token) {
+    return Promise.resolve(console.log("Ensuring database correctly setup:"))
+      .then(this.blizzard.setup(token))
+      .then(this.guildWow.setup())
+      .then(console.log());
   };
 
   this.close = function () {
