@@ -1,6 +1,6 @@
 const PREFIX = "!mb";
 
-module.exports = async (client, db_context, message) => {
+module.exports = async (client, appDAO, message) => {
   if (message.author.bot || !message.content.startsWith(PREFIX)) {
     return;
   }
@@ -38,7 +38,7 @@ module.exports = async (client, db_context, message) => {
   }
 
   try {
-    await command.execute(message, db_context, args);
+    await command.execute(message, appDAO, args);
   } catch (error) {
     console.error(error);
     message.reply("There was an error trying to execute that command!");

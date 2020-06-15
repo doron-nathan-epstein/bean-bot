@@ -6,7 +6,7 @@ module.exports = {
   guildOnly: true,
   args: true,
   usage: "[@user]",
-  async execute(message, db_context, args) {
+  async execute(message, appDAO, args) {
     const user = mentionedUser(message.client, args[0]);
 
     if (!user) {

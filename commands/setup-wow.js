@@ -6,31 +6,31 @@ module.exports = {
   adminOnly: true,
   args: true,
   usage: "[region] [realm] [guild-name]",
-  async execute(message, db_context, args) {
+  async execute(message, appDAO, args) {
     if (args.length !== 3) {
       return message.reply("Incorrect amount of arguments recieved.");
     }
 
     const region = args[0];
-    if (!validateRegion(region)) {
+    if (!validateRegion(appDAO, region)) {
       return message.reply("region not valid.");
     }
 
     const realm = args[1];
-    if (!validateRealm(locale, realm)) {
+    if (!validateRealm(appDAO, region, realm)) {
       return message.reply("realm not valid.");
     }
 
     const guildName = args[2];
 
-    db_context.guildwow.action(message.guild.id, region, realm, guildName);
+    appDAO.guildwow.action(message.guild.id, region, realm, guildName);
   },
 };
 
-function validateRegion(region) {
+function validateRegion(appDAO, region) {
   return true;
 }
 
-function validateRealm(region, realm) {
+function validateRealm(appDAO, region, realm) {
   return true;
 }

@@ -9,11 +9,11 @@ console.log("BEAN BOT STARTUP");
 console.log("================");
 console.log("");
 
-const db_context = new context();
+const appDAO = new context();
 
 new blizzardAuth()
   .getToken()
-  .then((token) => db_context.setupDatabase(token))
+  .then((token) => appDAO.setupDatabase(token))
   .then(() => {
     console.log("Creating Discord client...");
     return new discord.Client();
@@ -26,7 +26,7 @@ new blizzardAuth()
         const eventHandler = require(`./events/${file}`);
         const eventName = file.split(".")[0];
         client.on(eventName, async (...args) =>
-          eventHandler(client, db_context, ...args)
+          eventHandler(client, appDAO, ...args)
         );
       });
     });
@@ -65,7 +65,7 @@ function shutdown(client) {
   console.log("=================");
   console.log("");
 
-  db_context.close();
+  appDAO.close();
 
   console.log("Closing Discord Client connection...");
   client.destroy();

@@ -1,3 +1,3 @@
-module.exports = (client, db_context) => {
+module.exports = (client, appDAO) => {
   console.log(`Logged in as ${client.user.tag}!`);
 };

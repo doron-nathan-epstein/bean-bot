@@ -1,6 +1,6 @@
 const announce = require("../utils/announce.js");
 
-module.exports = async (client, db_context, oldState, newState) => {
+module.exports = async (client, appDAO, oldState, newState) => {
   if (oldState.member.user.bot) {
     return;
   }
