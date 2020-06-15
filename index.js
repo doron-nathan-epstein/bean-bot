@@ -65,7 +65,7 @@ function shutdown(client) {
   console.log("=================");
   console.log("");
 
-  this.db_context.close();
+  db_context.close();
 
   console.log("Closing Discord Client connection...");
   client.destroy();
