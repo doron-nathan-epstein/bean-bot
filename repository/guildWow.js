@@ -21,4 +21,11 @@ function guildWow(connection) {
     );
     sql.run(guildId, region, realm, guildName);
   };
+
+  this.get = function (guildId) {
+    const sql = this.db
+      .prepare("SELECT * FROM guildWow WHERE LOWER(guildId) = LOWER(?)")
+      .bind(guildId);
+    return sql.get();
+  };
 }
