@@ -10,8 +10,9 @@ console.log("================");
 console.log("");
 
 const appDAO = new context();
+const bAuth = new blizzardAuth();
 
-new blizzardAuth()
+bAuth
   .getToken()
   .then((token) => appDAO.setupDatabase(token))
   .then(() => {
@@ -25,9 +26,15 @@ new blizzardAuth()
       files.forEach((file) => {
         const eventHandler = require(`./events/${file}`);
         const eventName = file.split(".")[0];
-        client.on(eventName, async (...args) =>
-          eventHandler(client, appDAO, ...args)
-        );
+        const app = {
+          client: client,
+          dao: appDAO,
+          authProviders: {
+            blizzard: bAuth,
+          },
+        };
+
+        client.on(eventName, async (...args) => eventHandler(app, ...args));
       });
     });
 

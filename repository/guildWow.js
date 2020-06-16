@@ -15,12 +15,10 @@ function guildWow(connection) {
     });
   };
 
-  this.action = function (guildId, region, realm, guildName) {
-    return new Promis((resolve) => {
-      const sql = this.db.prepare(
-        "INSERT INTO guildWow (guildId, region, realm, guild) VALUES (?, ?, ?, ?)"
-      );
-      resolve(sql.run(guildId, region, realm, guildName));
-    });
+  this.replace = function (guildId, region, realm, guildName) {
+    const sql = this.db.prepare(
+      "REPLACE INTO guildWow (guildId, region, realm, guild) VALUES (?, LOWER(?), LOWER(?), LOWER(?))"
+    );
+    sql.run(guildId, region, realm, guildName);
   };
 }

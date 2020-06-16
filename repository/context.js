@@ -15,16 +15,19 @@ function context() {
   };
 
   this.setupDatabase = function (token) {
-    return Promise.resolve(console.log("Ensuring database correctly setup:"))
-      .then(this.blizzard.setup(token))
-      .then(this.guildWow.setup())
-      .then(console.log());
+    return (
+      Promise.resolve(console.log("Ensuring database correctly setup:"))
+        .then(this.blizzard.setup(token))
+        .then(this.guildWow.setup())
+        .then(console.log())
+    );
   };
 
   this.close = function () {
     console.log("Closing Database connection...");
     this.sql.close();
     console.log("Database connection closed");
+    console.log();
   };
 
   this.constructor();

@@ -96,4 +96,20 @@ function blizzard(connection) {
       )
     ).then(console.log("\tBlizzard-Realm: ✓"));
   };
+
+  this.getRegion = function (regionName) {
+    const sql = this.db
+      .prepare("SELECT * FROM blizzardRegion WHERE LOWER(region) = LOWER(?)")
+      .bind(regionName);
+    return sql.get();
+  };
+
+  this.getRealm = function (regionId, realmSlug) {
+    const sql = this.db
+      .prepare(
+        "SELECT * FROM blizzardRealm WHERE LOWER(slug) = LOWER(?) AND regionId = ?"
+      )
+      .bind(realmSlug, regionId);
+    return sql.get();
+  };
 }

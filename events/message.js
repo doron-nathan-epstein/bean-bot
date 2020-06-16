@@ -1,6 +1,6 @@
 const PREFIX = "!mb";
 
-module.exports = async (client, appDAO, message) => {
+module.exports = async (app, message) => {
   if (message.author.bot || !message.content.startsWith(PREFIX)) {
     return;
   }
@@ -10,8 +10,8 @@ module.exports = async (client, appDAO, message) => {
   console.log(`${message.author.tag} sent the following command: ${message}`);
 
   const command =
-    client.commands.get(commandName) ||
-    client.commands.find(
+    app.client.commands.get(commandName) ||
+    app.client.commands.find(
       (cmd) => cmd.aliases && cmd.aliases.includes(commandName)
     );
 
@@ -38,7 +38,7 @@ module.exports = async (client, appDAO, message) => {
   }
 
   try {
-    await command.execute(message, appDAO, args);
+    await command.execute(app, message, args);
   } catch (error) {
     console.error(error);
     message.reply("There was an error trying to execute that command!");

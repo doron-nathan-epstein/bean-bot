@@ -6,7 +6,7 @@ module.exports = {
   aliases: ["commands"],
   usage: "[command name]",
   cooldown: 5,
-  async execute(message, appDAO, args) {
+  async execute(app, message, args) {
     const data = [];
     const { commands } = message.client;
 
