@@ -1,24 +1,8 @@
 require("dotenv").config();
 const discord = require("discord.js");
 const fs = require("fs");
-const context = require("./repository/context.js");
-const blizzardAuth = require("./utils/blizzardAuth.js");
 
-console.log("================");
-console.log("BEAN BOT STARTUP");
-console.log("================");
-console.log("");
-
-const appDAO = new context();
-const bAuth = new blizzardAuth();
-
-bAuth
-  .getToken()
-  .then((token) => appDAO.setupDatabase(token))
-  .then(() => {
-    console.log("Creating Discord client...");
-    return new discord.Client();
-  })
+start()
   .then((client) => {
     console.log("\tSetting up bot events...");
     client.commands = new discord.Collection();
@@ -27,11 +11,7 @@ bAuth
         const eventHandler = require(`./events/${file}`);
         const eventName = file.split(".")[0];
         const app = {
-          client: client,
-          dao: appDAO,
-          authProviders: {
-            blizzard: bAuth,
-          },
+          client: client
         };
 
         client.on(eventName, async (...args) => eventHandler(app, ...args));
@@ -65,14 +45,22 @@ bAuth
     process.on("SIGTERM", () => process.exit(128 + 15));
   });
 
+function start() {
+  console.log("================");
+  console.log("BEAN BOT STARTUP");
+  console.log("================");
+  console.log("");
+
+  console.log("Creating Discord client...");
+  return new discord.Client();
+}
+
 function shutdown(client) {
   console.log("");
   console.log("=================");
   console.log("BEAN BOT SHUTDOWN");
   console.log("=================");
   console.log("");
-
-  appDAO.close();
 
   console.log("Closing Discord Client connection...");
   client.destroy();
