@@ -23,7 +23,7 @@ namespace BeanBot.Services
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-      await _discordClient.LoginAsync(TokenType.Bot, _config["DiscordToken"]);
+      await _discordClient.LoginAsync(TokenType.Bot, _config["DISCORD_TOKEN"]);
       await _discordClient.StartAsync();
     }
 
