@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "BeanBot": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DiscordToken": "NzA3MjgzMjMwMDU5MTM1MTI4.GRXZ4c.JSJOL2K734k_tbK-9pbrKRpZvqRZv_NXW4BQBo"
+      }
+    }
+  }
+}
