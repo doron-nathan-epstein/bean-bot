@@ -1,5 +1,12 @@
 using BeanBot;
+using Microsoft.Extensions.Hosting;
 
-var server = new BotServer();
+using IHost host = Host.CreateDefaultBuilder(args)
+    .ConfigureAppConfiguration(config =>
+    {
+      //config.AddYamlFile("_config.yml", false);       // Add the config file to IConfiguration variables
+    })
+    .ConfigureServices(services => services.AddBotServices())
+    .Build();
 
-await server.StartAsync();
+await host.RunAsync();
