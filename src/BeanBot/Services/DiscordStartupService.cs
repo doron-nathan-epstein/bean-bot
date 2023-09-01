@@ -1,9 +1,8 @@
-using BeanBot.Utility;
+using BeanBot.Application.Common;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace BeanBot.Services
 {
@@ -11,15 +10,15 @@ namespace BeanBot.Services
   {
     private readonly DiscordSocketClient _discordClient;
     private readonly IConfiguration _config;
-    private readonly ILogger<DiscordSocketClient> _logger;
+    private readonly IDiscordLogger _logger;
 
-    public DiscordStartupService(DiscordSocketClient discord, IConfiguration config, ILogger<DiscordSocketClient> logger)
+    public DiscordStartupService(DiscordSocketClient discord, IConfiguration config, IDiscordLogger logger)
     {
       _discordClient = discord;
       _config = config;
       _logger = logger;
 
-      _discordClient.Log += msg => LogHelper.OnLogAsync(_logger, msg);
+      _discordClient.Log += msg => _logger.OnLogAsync(msg);
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)

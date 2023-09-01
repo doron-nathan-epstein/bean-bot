@@ -44,7 +44,8 @@ namespace BeanBot
     private static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
       return services
-        .AddSingleton<ITtsClient, TtsClient>();
+        .AddSingleton<ITtsClient, TtsClient>()
+        .AddSingleton<IDiscordLogger, DiscordLogger>();
     }
   }
 }
