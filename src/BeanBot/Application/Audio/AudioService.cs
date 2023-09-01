@@ -1,23 +1,25 @@
+using BeanBot.Application.Audio;
+using BeanBot.Application.Common;
 using Discord;
 using Discord.Audio;
-using Google.Cloud.TextToSpeech.V1;
 using NAudio.Wave;
 using System.Collections.Concurrent;
 using System.Text;
 
 namespace BeanBot
 {
-  public class AudioService
+  internal sealed partial class AudioService : IAudioService
   {
     private static readonly ConcurrentDictionary<ulong, AudioClient> _channels = new();
-    private static TextToSpeechClient _google;
+    private static ITtsClient _ttsClient;
 
-    public AudioService()
+    public AudioService(ITtsClient ttsClient)
     {
-      Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", "tts_auth.json");
+      //Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", "tts_auth.json");
+      _ttsClient = ttsClient;
     }
 
-    public class AudioQueue
+    public partial class AudioQueue
     {
       private static readonly ConcurrentQueue<AudioInQueue> _queue = new();
       private static bool _taskIsRunning = false;
@@ -28,12 +30,6 @@ namespace BeanBot
         public ulong Server { get; set; }
         public string Message { get; set; }
         public AudioType Type { get; set; }
-      }
-
-      public enum AudioType
-      {
-        TTS,
-        AUDIO
       }
 
       public static void Enqueue(ulong serverId, string message, AudioType type)
@@ -81,7 +77,49 @@ namespace BeanBot
       public AudioQueue Queue { get; set; }
     }
 
-    public static async Task AddQueue(IGuild server, string message, AudioQueue.AudioType type)
+    private static string MD5(string input)
+    {
+      using var md5 = System.Security.Cryptography.MD5.Create();
+      byte[] hashBytes = md5.ComputeHash(Encoding.ASCII.GetBytes(input));
+      return Convert.ToHexString(hashBytes);
+    }
+
+    private static async Task ProcessTextToSpeech(ulong server, string message, CancellationToken token)
+    {
+      if (!Directory.Exists("tts"))
+        Directory.CreateDirectory("tts");
+
+      string file_Name = Path.Combine("tts", string.Format("{0}.mp3", MD5(message.ToLower())));
+
+      if (!File.Exists(file_Name))
+      {
+        await _ttsClient.CreateAsync();
+
+        var audioContent = await _ttsClient.SynthesizeSpeechAsync(message);
+
+        using var stream = File.Create(file_Name);
+        audioContent.WriteTo(stream);
+      }
+
+      await SendMp3AudioAsync(server, file_Name, token);
+    }
+
+    private static async Task SendMp3AudioAsync(ulong server, string audio_file, CancellationToken token)
+    {
+      if (!File.Exists(audio_file)) return;
+
+      if (_channels.TryGetValue(server, out AudioClient voice))
+      {
+        using var audio = new Mp3FileReader(audio_file);
+        var stream = new WaveFormatConversionStream(new WaveFormat(48000, 16, 2), audio);
+
+        voice.AudioDevice ??= voice.Client.CreatePCMStream(AudioApplication.Mixed, 98304, 200);
+
+        try { await stream.CopyToAsync(voice.AudioDevice, 1920, token); } finally { await voice.AudioDevice.FlushAsync(token); }
+      }
+    }
+
+    public async Task AddQueueAsync(IGuild server, string message, AudioType type)
     {
       if (_channels.TryGetValue(server.Id, out _))
         AudioQueue.Enqueue(server.Id, message, type);
@@ -89,7 +127,7 @@ namespace BeanBot
       await Task.CompletedTask;
     }
 
-    public static async Task SkipAudio(IGuild server, ITextChannel textChannel)
+    public async Task SkipAudioAsync(IGuild server, ITextChannel textChannel)
     {
       if (_channels.TryGetValue(server.Id, out _))
         AudioQueue.SkipQueue(textChannel);
@@ -97,7 +135,7 @@ namespace BeanBot
       await Task.CompletedTask;
     }
 
-    public static async Task JoinAudio(IGuild server, IVoiceChannel voiceChannel, ITextChannel textChannel)
+    public async Task JoinAudioAsync(IGuild server, IVoiceChannel voiceChannel, ITextChannel textChannel)
     {
       if (voiceChannel.Guild.Id != server.Id) return;
 
@@ -131,59 +169,12 @@ namespace BeanBot
         await textChannel.SendMessageAsync("Failed to add to our hashmap, internal error");
     }
 
-    public static async Task LeaveAudio(IGuild server)
+    public async Task LeaveAudioAsync(IGuild server)
     {
       if (_channels.TryRemove(server.Id, out AudioClient voice))
         voice.Client.Dispose();
 
       await Task.CompletedTask;
-    }
-
-    private static string MD5(string input)
-    {
-      using var md5 = System.Security.Cryptography.MD5.Create();
-      byte[] hashBytes = md5.ComputeHash(Encoding.ASCII.GetBytes(input));
-      return Convert.ToHexString(hashBytes);
-    }
-
-    private static async Task ProcessTextToSpeech(ulong server, string message, CancellationToken token)
-    {
-      if (!Directory.Exists("tts"))
-        Directory.CreateDirectory("tts");
-
-      string file_Name = Path.Combine("tts", string.Format("{0}.mp3", MD5(message.ToLower())));
-
-      if (!File.Exists(file_Name))
-      {
-        _google ??= await TextToSpeechClient.CreateAsync(token);
-
-        var response = await _google.SynthesizeSpeechAsync(new SynthesizeSpeechRequest
-        {
-          Input = new SynthesisInput { Text = message },
-          Voice = new VoiceSelectionParams { LanguageCode = "en-AU", Name = "en-AU-Neural2-A" },
-          AudioConfig = new AudioConfig { AudioEncoding = AudioEncoding.Mp3 }
-        });
-
-        using var stream = File.Create(file_Name);
-        response.AudioContent.WriteTo(stream);
-      }
-
-      await SendMp3AudioAsync(server, file_Name, token);
-    }
-
-    private static async Task SendMp3AudioAsync(ulong server, string audio_file, CancellationToken token)
-    {
-      if (!File.Exists(audio_file)) return;
-
-      if (_channels.TryGetValue(server, out AudioClient voice))
-      {
-        using var audio = new Mp3FileReader(audio_file);
-        var stream = new WaveFormatConversionStream(new WaveFormat(48000, 16, 2), audio);
-
-        voice.AudioDevice ??= voice.Client.CreatePCMStream(AudioApplication.Mixed, 98304, 200);
-
-        try { await stream.CopyToAsync(voice.AudioDevice, 1920, token); } finally { await voice.AudioDevice.FlushAsync(token); }
-      }
     }
   }
 }
