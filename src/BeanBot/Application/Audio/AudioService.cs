@@ -84,7 +84,7 @@ namespace BeanBot
       return Convert.ToHexString(hashBytes);
     }
 
-    private static async Task ProcessTextToSpeech(ulong server, string message, CancellationToken token)
+    private static async Task ProcessTextToSpeech(ulong server, string message, CancellationToken cancellationToken)
     {
       if (!Directory.Exists("tts"))
         Directory.CreateDirectory("tts");
@@ -93,18 +93,18 @@ namespace BeanBot
 
       if (!File.Exists(file_Name))
       {
-        await _ttsClient.CreateAsync();
+        await _ttsClient.CreateAsync(cancellationToken);
 
-        var audioContent = await _ttsClient.SynthesizeSpeechAsync(message);
+        var audioContent = await _ttsClient.SynthesizeSpeechAsync(message, cancellationToken);
 
         using var stream = File.Create(file_Name);
         audioContent.WriteTo(stream);
       }
 
-      await SendMp3AudioAsync(server, file_Name, token);
+      await SendMp3AudioAsync(server, file_Name, cancellationToken);
     }
 
-    private static async Task SendMp3AudioAsync(ulong server, string audio_file, CancellationToken token)
+    private static async Task SendMp3AudioAsync(ulong server, string audio_file, CancellationToken cancellationToken)
     {
       if (!File.Exists(audio_file)) return;
 
@@ -115,7 +115,7 @@ namespace BeanBot
 
         voice.AudioDevice ??= voice.Client.CreatePCMStream(AudioApplication.Mixed, 98304, 200);
 
-        try { await stream.CopyToAsync(voice.AudioDevice, 1920, token); } finally { await voice.AudioDevice.FlushAsync(token); }
+        try { await stream.CopyToAsync(voice.AudioDevice, 1920, cancellationToken); } finally { await voice.AudioDevice.FlushAsync(cancellationToken); }
       }
     }
 
