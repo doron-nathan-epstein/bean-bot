@@ -2,6 +2,7 @@ using BeanBot.Application.Audio;
 using BeanBot.Application.Common;
 using Discord;
 using Discord.Audio;
+using Google.Api;
 using NAudio.Wave;
 using System.Collections.Concurrent;
 using System.Text;
@@ -36,33 +37,52 @@ namespace BeanBot
       {
         _queue.Enqueue(new AudioInQueue { Server = serverId, Message = message, Type = type });
         if (!_taskIsRunning)
+        {
           Task.Run(ProcessQueuedItemsAsync);
+        }
       }
 
       public static async void SkipQueue(ITextChannel channel)
       {
         if (_cancel != null)
+        {
           _cancel.Cancel();
+        }
         else
+        {
           await channel.SendMessageAsync("There is nothing in the queue to skip");
+        }
       }
+
+      public static bool TaskIsRunning => _taskIsRunning;
 
       private static async Task ProcessQueuedItemsAsync()
       {
         _taskIsRunning = true;
         while (true)
         {
-          if (!_queue.Any()) break;
+          if (!_queue.Any())
+          {
+            break;
+          }
           if (_queue.TryDequeue(out AudioInQueue item))
           {
             _cancel = new CancellationTokenSource();
             try
             {
               if (item.Type == AudioType.TTS)
+              {
                 await ProcessTextToSpeech(item.Server, item.Message, _cancel.Token);
+              }
             }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
-            finally { _cancel.Dispose(); }
+            catch (Exception ex)
+            {
+              Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+              _cancel.Dispose();
+            }
           }
         }
         _taskIsRunning = false;
@@ -87,7 +107,9 @@ namespace BeanBot
     private static async Task ProcessTextToSpeech(ulong server, string message, CancellationToken cancellationToken)
     {
       if (!Directory.Exists("tts"))
+      {
         Directory.CreateDirectory("tts");
+      }
 
       string file_Name = Path.Combine("tts", string.Format("{0}.mp3", MD5(message.ToLower())));
 
@@ -106,7 +128,10 @@ namespace BeanBot
 
     private static async Task SendMp3AudioAsync(ulong server, string audio_file, CancellationToken cancellationToken)
     {
-      if (!File.Exists(audio_file)) return;
+      if (!File.Exists(audio_file))
+      {
+        return;
+      }
 
       if (_channels.TryGetValue(server, out AudioClient voice))
       {
@@ -115,14 +140,23 @@ namespace BeanBot
 
         voice.AudioDevice ??= voice.Client.CreatePCMStream(AudioApplication.Mixed, 98304, 200);
 
-        try { await stream.CopyToAsync(voice.AudioDevice, 1920, cancellationToken); } finally { await voice.AudioDevice.FlushAsync(cancellationToken); }
+        try
+        {
+          await stream.CopyToAsync(voice.AudioDevice, 1920, cancellationToken);
+        }
+        finally
+        {
+          await voice.AudioDevice.FlushAsync(cancellationToken);
+        }
       }
     }
 
     public async Task AddQueueAsync(IGuild server, string message, AudioType type)
     {
       if (_channels.TryGetValue(server.Id, out _))
+      {
         AudioQueue.Enqueue(server.Id, message, type);
+      }
 
       await Task.CompletedTask;
     }
@@ -130,7 +164,9 @@ namespace BeanBot
     public async Task SkipAudioAsync(IGuild server, ITextChannel textChannel)
     {
       if (_channels.TryGetValue(server.Id, out _))
+      {
         AudioQueue.SkipQueue(textChannel);
+      }
 
       await Task.CompletedTask;
     }
@@ -166,13 +202,26 @@ namespace BeanBot
       var audioClient = await voiceChannel.ConnectAsync();
       voice.Client = audioClient;
       if (!_channels.TryAdd(server.Id, voice))
+      {
         await textChannel.SendMessageAsync("Failed to add to our hashmap, internal error");
+      }
+
+      await AddQueueAsync(server, "Mr Bean has joined the channel", AudioType.TTS);
     }
 
     public async Task LeaveAudioAsync(IGuild server)
     {
+      await AddQueueAsync(server, "Mr Bean is leaving the channel", AudioType.TTS);
+
+      while (AudioQueue.TaskIsRunning)
+      {
+        await Task.Delay(1000);
+      }
+
       if (_channels.TryRemove(server.Id, out AudioClient voice))
+      {
         voice.Client.Dispose();
+      }
 
       await Task.CompletedTask;
     }

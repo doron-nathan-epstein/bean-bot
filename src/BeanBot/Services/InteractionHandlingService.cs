@@ -50,7 +50,9 @@ namespace BeanBot.Services
         var result = await _interactions.ExecuteCommandAsync(context, _services);
 
         if (!result.IsSuccess)
+        {
           await context.Channel.SendMessageAsync(result.ToString());
+        }
       }
       catch
       {

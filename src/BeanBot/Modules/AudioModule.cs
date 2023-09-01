@@ -19,9 +19,13 @@ namespace BeanBot.Modules
     {
       channel ??= (Context.User as IGuildUser)?.VoiceChannel;
       if (channel == null)
+      {
         await ReplyAsync("You are not connected to a voice channel for me to join!");
+      }
       else
+      {
         await _audioService.JoinAudioAsync(Context.Guild, channel, Context.Channel as ITextChannel);
+      }
     }
 
     [SlashCommand("leave", "Make the bot leave the channel.", true, RunMode.Async)]
