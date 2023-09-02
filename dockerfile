@@ -10,6 +10,10 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build
 
 FROM mcr.microsoft.com/dotnet/aspnet:6.0-alpine AS final
 
+  ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+
+  RUN apk add --no-cache icu-libs
+
   RUN addgroup -g 10000 appgroup && \
       adduser -D -u 100000 appuser -s /sbin/nologin -g appgroup
 
