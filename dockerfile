@@ -12,7 +12,18 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0-alpine AS final
 
   ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
-  RUN apk add --no-cache icu-libs
+  RUN apk update && \
+    apk add --no-cache \
+    icu-libs \
+    libintl \
+    libssl1.1 \
+    libgcc \
+    libstdc++ \
+    opus \
+    libopusenc \
+    ffmpeg \
+    libsodium \
+    && rm -rf /var/cache/apk/*
 
   RUN addgroup -g 10000 appgroup && \
       adduser -D -u 100000 appuser -s /sbin/nologin -g appgroup

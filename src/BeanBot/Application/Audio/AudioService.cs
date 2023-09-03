@@ -2,7 +2,6 @@ using BeanBot.Application.Audio;
 using BeanBot.Application.Common;
 using Discord;
 using Discord.Audio;
-using Google.Api;
 using NAudio.Wave;
 using System.Collections.Concurrent;
 using System.Text;
