@@ -1,9 +1,8 @@
+namespace BeanBot.Application.Common;
+
 using Discord;
 
-namespace BeanBot.Application.Common
+public interface IDiscordLogger
 {
-  public interface IDiscordLogger
-  {
-    public Task OnLogAsync(LogMessage message);
-  }
+  public Task OnLogAsync(LogMessage message);
 }

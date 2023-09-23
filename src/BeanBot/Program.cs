@@ -1,4 +1,3 @@
-using BeanBot;
 using Microsoft.Extensions.Hosting;
 
 using IHost host = Host.CreateDefaultBuilder(args)
@@ -9,4 +8,4 @@ using IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services => services.AddBotServices())
     .Build();
 
-await host.RunAsync();
+await host.RunAsync().ConfigureAwait(false);
