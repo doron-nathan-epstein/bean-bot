@@ -1,13 +1,13 @@
 namespace BeanBot.Modules;
 
-using System;
-using System.Threading.Tasks;
 using Discord.Interactions;
 using Lavalink4NET;
 using Lavalink4NET.DiscordNet;
 using Lavalink4NET.Players;
 using Lavalink4NET.Players.Vote;
 using Lavalink4NET.Rest.Entities.Tracks;
+using System;
+using System.Threading.Tasks;
 
 [RequireContext(ContextType.Guild)]
 [Group("music", "Provides music functionality to the server.")]

@@ -1,4 +1,5 @@
 using BeanBot.Application.Common;
+using BeanBot.Application.DiscordClient;
 using BeanBot.HostedServices;
 using BeanBot.Infrastructure;
 using Discord.Interactions;
@@ -14,6 +15,7 @@ internal static class DependencyInjection
       .AddDiscordServices()
       .AddLavalinkServices()
       .AddHostedServices()
+      .AddApplicationServices()
       .AddInfrastructureServices();
   }
 
@@ -32,8 +34,12 @@ internal static class DependencyInjection
   private static IServiceCollection AddHostedServices(this IServiceCollection services)
   {
     return services
-      .AddHostedService<DiscordClientService>()
-      .AddHostedService<InteractionHandlingService>();
+      .AddHostedService<DiscordClientService>();
+  }
+
+  private static IServiceCollection AddApplicationServices(this IServiceCollection services)
+  {
+    return services.AddSingleton<IDiscordClientStatusService, DiscordClientStatusService>();
   }
 
   private static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
