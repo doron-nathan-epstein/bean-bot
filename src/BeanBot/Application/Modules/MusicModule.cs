@@ -1,4 +1,4 @@
-namespace BeanBot.Modules;
+namespace BeanBot.Application.Modules;
 
 using Discord.Interactions;
 using Lavalink4NET;
@@ -237,7 +237,7 @@ public sealed class MusicModule : InteractionModuleBase<SocketInteractionContext
   /// <returns>
   ///     a task that represents the asynchronous operation. The task result is the lavalink player.
   /// </returns>
-  private async ValueTask<VoteLavalinkPlayer?> GetPlayerAsync(bool connectToVoiceChannel = true)
+  private async ValueTask<VoteLavalinkPlayer> GetPlayerAsync(bool connectToVoiceChannel = true)
   {
     var retrieveOptions = new PlayerRetrieveOptions(
         ChannelBehavior: connectToVoiceChannel ? PlayerChannelBehavior.Join : PlayerChannelBehavior.None);

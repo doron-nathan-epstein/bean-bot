@@ -1,4 +1,4 @@
-namespace BeanBot.Modules;
+namespace BeanBot.Application.Modules;
 
 using Discord.Interactions;
 
